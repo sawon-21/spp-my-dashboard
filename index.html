@@ -174,7 +174,359 @@
                         <strong>Payment Status:</strong> <span id="student-payment"></span>
                     </div>
                 </div>
+                <!-- QNA Button -->
+<button id="open-comment-popup" class="button-56" role="button">Q&A
+  <i class="fas fa-question"></i>
+</button>
             </div>
+
+<!-- FontAwesome Icon Library -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<!-- Comment Popup -->
+<div id="comment-popup" class="popup">
+    <div class="popup-content">
+        <span id="close-popup" class="close">&times;</span>
+        <h2 style="color:white">QNA❓</h2> <hr>
+        <div id="comments"><p style="color:red">⚠ Please check your internet connection and try again ⚠</p> </div>
+        <input type="text" id="comment-input" placeholder="Write..." />
+        <button id="submit-comment">Post</button>
+    </div>
+</div>
+<script type="module">
+        // Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+        import { getDatabase, ref, push, onValue, runTransaction } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-analytics.js";
+
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyD8SUCRABkNj7C9_z7beoWVdeivE2vFKs",
+    authDomain: "admition-52c47.firebaseapp.com",
+    databaseURL: "https://admition-52c47-default-rtdb.firebaseio.com",
+    projectId: "admition-52c47",
+    storageBucket: "admition-52c47.appspot.com",
+    messagingSenderId: "1065012142592",
+    appId: "1:1065012142592:web:ea76b942aba95418eb6ee5",
+    measurementId: "G-3N3F8DJ8FC"
+};
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        if (window.location.hostname !== "localhost") {
+            getAnalytics(app);
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const loveIcon = document.getElementById("love-icon");
+            const loveCount = document.getElementById("love-count");
+            const commentInput = document.getElementById("comment-input");
+            const submitComment = document.getElementById("submit-comment");
+            const commentsDiv = document.getElementById("comments");
+            const commentPopup = document.getElementById("comment-popup");
+            const openPopup = document.getElementById("open-comment-popup");
+            const closePopup = document.getElementById("close-popup");
+
+            // Open and Close Popup
+            openPopup.addEventListener("click", () => { commentPopup.style.display = "block"; });
+            closePopup.addEventListener("click", () => { commentPopup.style.display = "none"; });
+
+
+            // Fetch & Display Comments with Replies
+            onValue(ref(db, "profile/comments"), (snapshot) => {
+                commentsDiv.innerHTML = "";
+                snapshot.forEach((childSnapshot) => {
+                    let commentData = childSnapshot.val();
+                    let commentId = childSnapshot.key;
+
+                    let commentElement = document.createElement("div");
+                    commentElement.classList.add("comment-box");
+                    commentElement.innerHTML = `
+                        <strong>${commentData.name}</strong> 
+                        <span class="comment-date">${commentData.date}</span>
+                        <p>${commentData.comment}</p>
+                        <div class="reply-section" id="replies-${commentId}"></div>
+                    `;
+
+                    commentsDiv.prepend(commentElement);
+
+                    // Fetch Replies
+                    onValue(ref(db, `profile/comments/${commentId}/replies`), (replySnapshot) => {
+                        const repliesDiv = document.getElementById(`replies-${commentId}`);
+                        repliesDiv.innerHTML = "";
+                        replySnapshot.forEach((replyChild) => {
+                            let replyData = replyChild.val();
+                            let replyElement = document.createElement("div");
+                            replyElement.classList.add("reply-box");
+                            replyElement.innerHTML = `
+                                <strong><b>Smart Private Proggram  <img src="verify.png" width="12px" alt="verified account"> </b> </strong> <span class="comment-date">${replyData.date}</span>
+                                <p>${replyData.reply}</p>
+                            `;
+                            repliesDiv.appendChild(replyElement);
+                        });
+                    });
+                });
+            });
+
+            // Post Comment
+            submitComment.addEventListener("click", () => {
+                let commentText = commentInput.value.trim();
+                if (commentText) {
+                    let userName = localStorage.getItem("userName") || prompt("Enter your name:");
+                    if (!userName) return;
+                    localStorage.setItem("userName", userName);
+
+                    let commentData = { name: userName, comment: commentText, date: new Date().toLocaleString() };
+                    push(ref(db, "profile/comments"), commentData);
+                    commentInput.value = "";
+                }
+            });
+        });
+
+    </script>
+    
+    <style>
+/* Button Styling */
+.button-56 {
+  align-items: center;
+  background-color:  #374151;
+  border: 2px solid #111;
+  border-radius: 8px;
+  box-sizing: border-box;
+  color: #F39C12;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+    font-family: "Caudex", serif;
+  font-size: 20px;
+  height: 48px;
+  justify-content: center;
+  line-height: 24px;
+  max-width: 100%;
+  padding: 0 25px;
+  position: relative;
+  text-align: center;
+  text-decoration: none;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  gap: 8px; /* Space between icon and text */
+}
+
+.button-56:after {
+  background-color: #111;
+  border-radius: 8px;
+  content: "";
+  display: block;
+  height: 48px;
+  left: 0;
+  width: 100%;
+  position: absolute;
+  top: -2px;
+  transform: translate(8px, 8px);
+  transition: transform 0.2s ease-out;
+  z-index: -1;
+}
+
+.button-56:hover:after {
+  transform: translate(0, 0);
+}
+
+.button-56:active {
+  background-color: #ffdeda;
+  outline: 0;
+}
+
+.button-56:hover {
+  outline: 0;
+}
+
+@media (min-width: 768px) {
+  .button-56 {
+    padding: 0 40px;
+  }
+}
+/* Popup Background */
+.popup {
+    display: none;
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(8px);
+}
+
+/* Popup Content */
+.popup-content {
+    font-family: "Caudex", serif;
+    background: #1A1E26;
+    padding: 20px;
+    border-radius: 15px;
+    text-align: center;
+    width: 90%;
+    max-width: 650px;
+    position: relative;
+    animation: fadeIn 0.3s ease-in-out;
+    box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.4);
+    border: 1px solid #374151;
+}
+
+/* Close Button */
+.close {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 32px;
+    color: #E74C3C;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+.close:hover {
+    color: #F39C12;
+}
+
+/* Comments Section */
+#comments {
+    max-height: 500px;
+    overflow-y: auto;
+    text-align: left;
+    margin-bottom: 15px;
+    padding: 10px;
+    background: #232A35;
+    border-radius: 12px;
+    border: 1px solid #3C4858;
+}
+
+/* Individual Comment */
+.comment-box {
+    background: linear-gradient(120deg, #2C3441, #3C4655);
+    padding: 12px;
+    font-size: 16px;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    border-left: 5px solid #F39C12;
+    color: #EAECEF;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+    position: relative;
+}
+
+/* Upvote & Downvote Buttons */
+.voting {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    display: flex;
+    gap: 10px;
+}
+.vote-btn {
+    cursor: pointer;
+    color: #B0BEC5;
+    font-size: 16px;
+    transition: 0.3s ease-in-out;
+}
+.vote-btn:hover {
+    color: #F39C12;
+}
+.vote-count {
+    font-size: 14px;
+    color: #FFD700;
+}
+
+/* Comment Name and Date */
+.comment-box strong {
+    color: #FFD700;
+    font-size: 14px;
+}
+.comment-date {
+    font-size: 8px;
+    color: #B0BEC5;
+    margin-left: 10px;
+}
+
+/* Replies Section */
+.reply-box {
+    background: linear-gradient(120deg, #3A4453, #4A5568);
+    padding: 10px;
+    font-size: 14px;
+    border-radius: 12px;
+    margin-left: 30px;
+    margin-top: 8px;
+    border-left: 4px solid #305CDE;
+    color: #DEA193;
+    position: relative;
+}
+
+/* Nested Replies */
+.reply-box:nth-child(odd) {
+    background: #2E3A49;
+}
+.reply-box:nth-child(even) {
+    background: #3C4655;
+}
+
+/* Reply Name */
+.reply-box strong {
+    color: #90D5FF;
+}
+
+/* Comment Input */
+#comment-input {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    border: 1px solid #546E7A;
+    border-radius: 8px;
+    background: #232A35;
+    color: #EAECEF;
+    font-size: 16px;
+}
+#comment-input:focus {
+    border-color: #F39C12;
+    outline: none;
+}
+
+/* Submit Button */
+#submit-comment {
+    width: 100%;
+    padding: 12px;
+    background: #F39C12;
+    color: #1A1E26;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s ease-in-out;
+    font-size: 16px;
+    font-weight: bold;
+}
+#submit-comment:hover {
+    background: #FFD700;
+    color: #1A1E26;
+}
+
+/* Mobile Optimization */
+@media screen and (max-width: 600px) {
+    .popup-content {
+        width: 95%;
+        max-width: 350px;
+    }
+    .comment-box {
+        font-size: 14px;
+    }
+}
+
+/* Smooth Animation */
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
+</style>
+  
 <!-- Bootstrap Advanced Alert Modal -->
 <div class="modal fade" id="alertModal" tabindex="-1" aria-labelledby="alertTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -210,7 +562,7 @@
                 document.getElementById("loading-screen").style.display = "none";
                 document.getElementById("main-content").style.display = "block";
             }, 500);
-        }, 3000);
+        }, 2000);
     </script>
 
     <script type="module" src="https://sawon-21.github.io/smart-privat-proggram/u.js"></script>
